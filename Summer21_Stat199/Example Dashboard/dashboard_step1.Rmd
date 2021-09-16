@@ -1,0 +1,62 @@
+---
+title: "Catchy Dashboard Workshop Title"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+---
+
+```{r setup, include=FALSE}
+#single-page dashboard layouts
+#https://rmarkdown.rstudio.com/flexdashboard/layouts.html
+library(flexdashboard)
+library(ggplot2)
+#NOTE: "-----------------------------------------------------------------------" is the section delimiter
+```
+
+
+Row {data-height=200}
+-----------------------------------------------------------------------
+
+### Introduction
+
+In this dashboard we will explore a very dull and over-used data set called iris. It's okay that it's boring; it allows us to focus on learning a new tool, which is flexdashboard! Below you see some eye-catching summary stats. Typically, you'll want these to be interesting, high-level summaries!
+
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### Distribution of Petal Length by Species
+
+```{r, fig.width = 15}
+ ggplot(data = iris) + #iris is pre-loaded into R. With other data sets, you'll have to load them as usual.
+      geom_density(aes(x = Petal.Length, fill = Species)) +
+  facet_wrap(~Species, nrow = 1)+
+  scale_fill_viridis_d() +
+  theme_bw()
+
+```
+
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### Relationship between Sepal Width, Length
+
+```{r}
+ ggplot(data = iris) +
+      geom_point(aes(x=Sepal.Width, y = Sepal.Length, colour = Species))+
+        scale_colour_viridis_d() +
+  theme_bw()
+
+#below I'm including another header with another plot in the same row 
+#this puts them side by side
+```
+
+### Relationship between Petal Width, Length
+
+```{r}
+ ggplot(data = iris) +
+      geom_point(aes(x=Petal.Width, y = Petal.Length, colour = Species))+
+        scale_colour_viridis_d() +
+  theme_bw()
+```

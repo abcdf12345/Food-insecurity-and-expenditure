@@ -1,0 +1,148 @@
+---
+title: "Dashboard Workshop"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+---
+
+```{r setup, include=FALSE}
+#multiple pages within one dashboard
+#https://rmarkdown.rstudio.com/flexdashboard/layouts.html#multiple_pages
+library(flexdashboard)
+library(ggplot2)
+
+#NOTE: "-----------------------------------------------------------------------" is the section delimiter
+#NOTE: "===================================== " is the PAGE delimiter
+
+```
+Data Overview
+===================================== 
+
+Row {data-height=200}
+-----------------------------------------------------------------------
+
+### Introduction
+
+In this dashboard we will explore a very dull and over-used data set called iris. It's okay that it's boring; it allows us to focus on learning a new tool, which is flexdashboard! Below you see some eye-catching summary stats. Typically, you'll want these to be interesting, high-level summaries!
+
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### Distribution of Petal Length by Species
+
+```{r, fig.width = 15}
+ ggplot(data = iris) +
+      geom_density(aes(x = Petal.Length, fill = Species)) +
+  facet_wrap(~Species, nrow = 1)+
+  scale_fill_viridis_d() +
+  theme_bw()
+
+```
+
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### Relationship between Sepal Width, Length
+
+```{r}
+ ggplot(data = iris) +
+      geom_point(aes(x=Sepal.Width, y = Sepal.Length, colour = Species))+
+  scale_colour_viridis_d() +
+  theme_bw()
+
+```
+
+### Relationship between Petal Width, Length
+
+```{r}
+ ggplot(data = iris) +
+      geom_point(aes(x=Petal.Width, y = Petal.Length, colour = Species))+
+        scale_colour_viridis_d() +
+  theme_bw()
+```
+
+
+Prediction tool: at a glance
+===================================== 
+
+Row {data-height=150}
+-----------------------------------------------------------------------
+
+### Classification tree
+
+Our primary goal is to predict the species based on physical characteristics. We've fit a classification tree using the rpart algorithm. Trees are kind of nice for interpretability, but it isn't the strongest prediction tool. 
+
+Row
+-----------------------------------------------------------------------
+
+```{r, echo=FALSE}
+#setup code!
+library(rpart)
+library(rpart.plot)
+mytree <- rpart(Species ~., data = iris)
+#not outputting anything - thus, nothing will show up.
+```
+
+### Accuracy (in-sample)
+
+```{r}
+#Icons are fun! Here's a list:
+#https://ionicons.com/v2/cheatsheet.html
+#obviously, we know in-sample measures of error are meaningless, but here we go
+iris$predicted <- predict(mytree, iris, type = "class")
+library(caret)
+cm <- confusionMatrix(iris$predicted, iris$Species) #for categorical prediction 
+#(you'd quantify prediction quality differently for numeric responses...
+#perhaps a scatterplot of predicted vs truth in the test data? 
+#mean of the squared prediction errors?)
+
+accuracy <- cm$overall[1]
+valueBox(accuracy, 
+           icon = "ion-android-bar",
+           color = ifelse(accuracy > .8, "success", "info")) #conditional coloring!
+
+
+```
+
+### Setosa Sensitivity
+
+```{r}
+#obviously, we know in-sample measures of error are meaningless,
+
+
+
+setosa_sensitivity <-cm$byClass[1,1]
+valueBox(setosa_sensitivity, 
+           icon = "fa-pencil",
+           color = "primary")
+
+
+```
+
+### Versicolor Sensitivity
+
+```{r}
+#obviously, we know in-sample measures of error are meaningless,
+vs_sensitivity <-cm$byClass[2,1]
+valueBox(vs_sensitivity, 
+           icon = "ion-android-cloud",
+           color = "info")
+
+
+```
+
+
+Row
+-----------------------------------------------------------------------
+### Chart B
+
+```{r}
+
+
+rpart.plot(mytree)
+
+```
+
+

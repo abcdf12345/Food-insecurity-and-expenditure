@@ -1,0 +1,232 @@
+---
+title: "Dashboard Workshop"
+output: 
+  flexdashboard::flex_dashboard:
+    runtime: shiny
+    orientation: rows
+---
+
+```{r setup, include=FALSE}
+#^^^NOTE the different header above^^^
+#This is because I use a reactive environment on page 3 now
+
+#Incorporating Shiny (interactive) components into flexdashboard:
+#https://rmarkdown.rstudio.com/flexdashboard/shiny.html#simple_example
+library(flexdashboard)
+library(ggplot2)
+library(dplyr)
+library(RColorBrewer)
+library(reshape2)
+```
+Data Overview
+===================================== 
+
+Row {data-height=150}
+-----------------------------------------------------------------------
+
+### Introduction
+
+In this dashboard we will explore a very dull and over-used data set called iris. It's okay that it's boring; it allows us to focus on learning a new tool, which is flexdashboard! Below you see some eye-catching plots. These, on the first page, will typically be high-level summaries of the data. 
+
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### Distribution of Petal Length by Species
+
+```{r, fig.width = 15}
+ ggplot(data = iris) +
+      geom_density(aes(x = Petal.Length, fill = Species)) +
+  facet_wrap(~Species, nrow = 1)+
+  scale_fill_brewer(palette = "Greens") +
+  theme_bw()
+
+```
+
+
+Row {data-height=400}
+-----------------------------------------------------------------------
+
+### Relationship between Sepal Width, Length
+
+```{r}
+ ggplot(data = iris) +
+      geom_point(aes(x=Sepal.Width, y = Sepal.Length, colour = Species))+
+      scale_colour_brewer(palette = "Greens")+
+  theme_bw()
+
+```
+
+### Relationship between Petal Width, Length
+
+```{r}
+ ggplot(data = iris) +
+      geom_point(aes(x=Petal.Width, y = Petal.Length, colour = Species))+
+      scale_colour_brewer(palette = "Greens")+
+  theme_bw()
+```
+
+
+Prediction tools: at a glance
+===================================== 
+
+Row {data-height=150}
+-----------------------------------------------------------------------
+
+### Classification tree
+
+Our primary goal is to predict the species based on physical characteristics. We've fit a classification tree and random forest. On the left you'll see a visual of the tree's decision rules. On the right, you'll see the variance importance plot from the random forest. I made no effort to tune either of these tools. Nor did I split the data into training/testing for evaluation. It's good to be transparent about these things.
+
+Row
+-----------------------------------------------------------------------
+
+```{r, echo=FALSE}
+#setup code!
+library(rpart)
+library(rpart.plot)
+library(randomForest)
+mytree <- rpart(Species ~., data = iris)
+
+myforest <- randomForest(Species ~., data = iris, importance = TRUE)
+```
+
+### Accuracy (in-sample)
+
+```{r}
+#https://ionicons.com/v2/cheatsheet.html
+#obviously, we know in-sample measures of error are meaningless,
+iris$predicted <- predict(myforest, iris, type = "class")
+library(caret)
+cm <- confusionMatrix(iris$predicted, iris$Species)
+
+accuracy <- cm$overall[1]
+valueBox(accuracy, 
+           icon = "database",
+           color = ifelse(accuracy > .8, "blue", "orange")) #conditional coloring!
+
+
+```
+
+### Setosa Sensitivity
+
+```{r}
+#obviously, we know in-sample measures of error are meaningless,
+
+
+
+setosa_sensitivity <-cm$byClass[1,1]
+valueBox(setosa_sensitivity, 
+           icon = "equals",
+           color = "teal")
+
+
+```
+
+### Versicolor Sensitivity
+
+```{r}
+#obviously, we know in-sample measures of error are meaningless,
+vs_sensitivity <-cm$byClass[2,1]
+valueBox(accuracy, 
+           icon = "equals",
+           color = "navy")
+
+
+```
+
+
+Row
+-----------------------------------------------------------------------
+### Classification tree
+
+```{r}
+
+
+rpart.plot(mytree)
+
+```
+
+### Ranking of important factors for predicting species
+
+```{r}
+
+varImpPlot(myforest, type = 1)
+
+```
+
+Make a prediction
+===================================== 
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+# shiny inputs defined here - users see these
+# note there are other kinds of inputs such as drop down menus, etc.
+sliderInput("Sepal.Length.input", label = "New Sepal Length:",
+            min = 4.300, max = 7.900, value = 4.5, step = 0.1)
+sliderInput("Sepal.Width.input", label = "New Sepal Width:",
+            min = 2.000, max =4.400, value = 2.5, step = 0.1)
+sliderInput("Petal.Length.input", label = "New Petal Length:",
+            min = 1.000, max = 6.9, value = 3, step = 0.1)
+sliderInput("Petal.Width.input", label = "New Petal Width:",
+            min = 0.100, max = 2.5, value = 1.3, step = 0.1)
+
+#these inputs get saved a reactive object where you can call them as:
+#for example, input$Petal.Width.input or input$Sepal.Length.input (as defined above)
+
+```
+
+
+Row 
+-----------------------------------------------------------------------
+
+### Prediction with given inputs
+
+```{r }
+
+new.df <- reactive({data.frame(Sepal.Length = input$Sepal.Length.input, #<-- calling the reactive input!
+                     Sepal.Width = input$Sepal.Width.input,
+                     Petal.Length = input$Petal.Length.input,
+                     Petal.Width = input$Petal.Width.input)})
+
+prediction_class <- reactive({predict(myforest, new.df(), type = "class")}) #based on user-supplied input!
+
+renderValueBox({
+
+valueBox(prediction_class(), 
+           icon = "chart-line",
+           color = "blue") 
+  
+})
+
+```
+
+Row 
+-----------------------------------------------------------------------
+### Predicted Probabilities of Species
+
+```{r, fig.width = 7 }
+  new.df_reac <-reactive({ data.frame(Sepal.Length = input$Sepal.Length.input,
+                     Sepal.Width = input$Sepal.Width.input,
+                     Petal.Length = input$Petal.Length.input,
+                     Petal.Width = input$Petal.Width.input)})
+
+prediction_probability_reac <- reactive({
+  #notice I'm calling the reactive new.df_reac using "new.df_reac()"!
+  predict(mytree, new.df_reac(), type = "prob") %>% melt
+})
+
+
+renderPlot({
+
+ggplot(data =prediction_probability_reac()) + #again! using the "()" syntax to denote reactive object
+  geom_bar(aes(x = Var2, y = value, fill = Var2), stat = "identity") +
+  labs( x = "Species", y = "Predicted Probability") +
+  theme_bw() + 
+  scale_fill_brewer("Species", palette = "Greens")
+  
+})
+
+```
+

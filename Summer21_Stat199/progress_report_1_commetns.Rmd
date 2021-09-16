@@ -1,0 +1,34 @@
+---
+title: "Comments on First Progress Report"
+author: "Dr. Lendie Follett"
+date: "6/23/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1. disability plots: better labels on x and y axis (currently "disability" and "me")
+2. disability plots: change so that the x axis is "yes" and "no" instead of numeric scale
+3. What about a filled barchart like we did in 172? i.e., x axis = disability, fill by some measure of food insecurity (e.g., TRUE/FALSE if food insecurity > 0)
+4. for the elderly plot on the left... should the x axis label be "number of elderly in household", not "food insecure"?
+5. It's a zero inflated poisson so we have to say, in the Poisson interpretations, "For vulnerable individuals"...
+6. In the Poisson interpretations, need to say "by a factor of" or use percent terminology. Basically, it's just like Poisson interpretations (see packet 3 from 172), but with the "For vulnerable individuals" intro.
+7. We will interpret the logistic part of Zero-inflated Poisson just like we did in logistic regression (in terms of odds, see packet 2), but our "success" is being in the certain zero group. 
+8. It's really really interesting that elderly has opposite effects in the bernoulli vs poisson components in the zero inflated model.
+9. For your family size vs food expenses plot, try geom_jitter instead of geom_point to help reduce overplotting. Or, try boxplots with a binned version of hhsize. May have to create new variable for this.
+10. labels on all plots
+11. Try scale_y_log10() on some of the fexpend plots. That will log transform the y axis, while keeping the original scale on the labels. 
+12. Might be work looking into the related-not related count data issue
+13. With all disability plots - change from 0/1 to yes/no
+14. Scale y axis on the fexpend plots to us dollar notation. Google "dollar axis labels ggplot2"
+15. To make x axis clearer
+
+```{r, eval=FALSE}
+#change your_max to whatever the maximum mtry is
++scale_x_continuous(breaks = c(1:your_max), labels = c(1:your_max))
+```
+
+16. Color and overall beautifulness of plots. Color should always be useful, not just for pretties, but do try to include it. Recall how we got a list of color blind friendly palettes. 
+

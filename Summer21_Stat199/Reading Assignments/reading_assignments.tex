@@ -1,0 +1,167 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Reading checks},
+  pdfauthor={Ryan Holt},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifluatex
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+
+\title{Reading checks}
+\author{Ryan Holt}
+\date{6/3/2021}
+
+\begin{document}
+\maketitle
+
+\hypertarget{data-analytics-lifecycle}{%
+\subsection{Data Analytics Lifecycle}\label{data-analytics-lifecycle}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  The article discussed the topic of ``interviewing the analytics
+  sponsor'' at length. What is one tip you found useful and/or
+  interesting?
+\end{enumerate}
+
+Answer:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  What is the phase that immediately precedes Phase 4: Model Building?
+  (If you can't remember the exact name, describe the general idea of
+  it.)
+\end{enumerate}
+
+Answer:
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  What is the phase that is most commonly underestimated and revisited
+  by analytics teams? Why?
+\end{enumerate}
+
+Answer:
+
+\hypertarget{how-to-display-data-badly}{%
+\subsection{How to Display Data Badly}\label{how-to-display-data-badly}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  Wainer discusses, in detail, 12 rules for how one can successfully
+  display data badly (note this is tongue-in-cheek). For at least one of
+  the rules, describe SPECIFICALLY how you could not-follow this rule in
+  this or a past project to create a better visual. This might involve a
+  previous visual you or someone else has made - perhaps you/they could
+  have done it better had you/they not-followed one of these rules?
+\end{enumerate}
+
+Answer:
+
+\hypertarget{assessing-reproducibility}{%
+\subsection{Assessing Reproducibility}\label{assessing-reproducibility}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\item
+  What is the difference between reproducibility and replicability,
+  according to the authors' preferred definitions?
+\item
+  The authors divide the assessment of reproducibility into three
+  different aspects. Name them and provide a short one sentence summary
+  of each.
+\item
+  According to the authors, who is often the ``first person to benefit
+  from automation''?
+\end{enumerate}
+
+\hypertarget{the-basic-reproducible-workflow-template}{%
+\subsection{The Basic Reproducible Workflow
+Template}\label{the-basic-reproducible-workflow-template}}
+
+The article named many ways one can adopt reproducible practices in
+their workflow, from Stage 1: Data Acquisition to Stage 3: Data Analysis
+and Automation. Describe \emph{at least} one suggestion that you can
+commit to implementing in this project. Be sure to describe -
+specifically - how you are committing to it.
+
+\hypertarget{fundamental-principles-of-analytic-communication}{%
+\subsection{Fundamental principles of analytic
+communication}\label{fundamental-principles-of-analytic-communication}}
+
+\hypertarget{aspects-of-statistical-consulting-not-taught-by-academia}{%
+\subsection{Aspects of statistical consulting not taught by
+academia}\label{aspects-of-statistical-consulting-not-taught-by-academia}}
+
+\hypertarget{last-reading-assignment}{%
+\subsection{Last Reading Assignment}\label{last-reading-assignment}}
+
+Create and turn in a new .Rmd / pdf for short essay.
+
+\end{document}

@@ -1,0 +1,79 @@
+---
+title: "Reading checks"
+author: "Ryan Holt"
+date: "6/3/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Data Analytics Lifecycle
+1. The article discussed the topic of "interviewing the analytics sponsor" at length. What is one tip you found useful and/or interesting?
+
+Answer: One tip that was interesting was the tip of creating and using open ended questions rather than yes or no responses. This, coupled with active listening and allowing for dead space with regards to the conversation to allow for the sponsor to fully flesh out their response, seems like an incredibly useful tip as it allows for a more in depth analysis not only into the problem at hand but also into any possible biases the sponsor may have with regards to the entire project. 
+
+2. What is the phase that immediately precedes Phase 4: Model Building? (If you can't remember the exact name, describe the general idea of it.)
+
+Answer: The phase that precedes phase 4 is phase 3 - Model Planning. In this phase the team will explore the structure of data sets and what analytic techniques need to be used. Also, the determination of whether or not a single model will suffice 
+for the project. 
+
+3. What is the phase that is most commonly underestimated and revisited by analytics teams? Why?
+
+Answer: The phase that is most commonly underestimated and revisited is phase 2, data preparation. This is because the data analytics teams are anxious to move on to phase 3 and phase 4, model planning and model building, respectively. In their haste the team would have not prepared the data properly for models required to answer questions posed in phase 1, leading to the team having to circle back to phase 2 again. 
+
+## Data on Diversity
+
+1. The Nelson article (The Data on Diversity) mentioned several challenges faced by diverse teams. Name one of them.
+
+Answer: One challenge that diverse teams can experience is the exclusion from critical social networks.
+
+2. What is the stereotype threat (you can give an example to help explain)? How can it be mitigated?
+
+Answer: stereotype threat is the presence of a stereotype that the individual is aware of that puts their identity with a negative contingency. One way to mitigate stereotype threat is to introduce a credible statement, remind the subject of a positive stereotype, introduce critical mass into the group, offer a credible narrative, & spending time writing out one's
+own positive values have all been ways to mitigation. 
+
+3. Recall the study of collective intelligence which measured the performances of teams of 3-5 people. Groups with 50\% women were the highest scoring. However, some of the lowest scoring teams were also near 50\% women. What was found to be the difference?
+
+Answer: The difference was the presence of social skills required to successfully use the contributions of all the team members. 
+
+4. What was the point of the coffee example?
+
+Answer: The coffee example was used to demonstrate the existence of unconscious decisions made by individuals.
+
+## How to Display Data Badly
+1. Wainer discusses, in detail, 12 rules for how one can successfully display data badly (note this is tongue-in-cheek). For at least one of the rules, describe SPECIFICALLY how you could not-follow this rule in this or a past project to create a better visual. This might involve a previous visual you or someone else has made - perhaps you/they could have done it better had you/they not-followed one of these rules? 
+
+Answer: One rule that would be bad to follow would be Rule10, Label (a) Illegibly, (b) Incompletely, (c) Incorrectly, and (d) Ambiguously. This has been a problem in the past, since the names of variables can have complex names and need to be changed during representation. An example would be in my current project where I have to create a plot to demonstrate the effect changing the value m, which is the number of predictor variables wanted, on the Out of Bag Error Rate, which is the rate of error a tree in the forest has when predicting the response variable, this is done for each tree to determine which one is most efficient with each value of mtry. If the variables are labeled incorrect then it would make no sense even to someone who is well-versed in data analytics. 
+
+## Assessing Reproducibility
+1. What is the difference between reproducibility and replicability, according to the authors' preferred definitions?
+
+Reproducibility is the ability of a researcher to replicate a previous study using the same tools and data. Replicability is the ability of a researcher to get similar results from a study using similar procedures and tools but different data. These definitions are supported by Goodman et al.
+
+2. The authors divide the assessment of reproducibility into three different aspects. Name them and provide a short one sentence summary of each. 
+
+The three different aspects are automation and provenance tracking, availability of software and data, and open reporting of results. Automation and provenance tracking is the documenting and encoding of software such that future teams can easily run through the process of data transformation and visualization. Availability of software and data is as it sounds, to gauge the availability of the data set, meaning what file format it is in and if it is open to the public, and to determine if the software package used to perform the study is available to the public or not, also a readme file couldn't hurt. Finally, open reporting of results is also as it sounds, being able to be completely transparent about your process, the results found, and the overall work done, which can be done by putting your finding in journals. 
+
+3. According to the authors, who is often the "first person to benefit from automation"?
+
+The first person to benefit from automation is the researcher performing the initial or original research. 
+
+## The Basic Reproducible Workflow Template
+The article named many ways one can adopt reproducible practices in their workflow, from Stage 1: Data Acquisition to Stage 3: Data Analysis and Automation. Describe *at least* one suggestion that you can commit to implementing in this project. Be sure to describe - specifically - how you are committing to it. 
+
+One suggestion I can commit to implementing is the use of a metadata file in order to document where any data I got came from. Specifically, I plan to create a metadata file for the most recent data gathered from the CDC, and I plan to do so in the future with any data gathered. 
+
+## Fundamental principles of analytic communication
+
+
+
+## Aspects of statistical consulting not taught by academia
+
+
+
+## Last Reading Assignment 
+Create and turn in a new .Rmd / pdf for short essay.
+
+

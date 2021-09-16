@@ -1,0 +1,246 @@
+---
+title: "Iowa Food Insecurity Predictions"
+runtime: shiny
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: row
+    vertical_layout: scroll
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+
+#Incorporating Shiny (interactive) components into flexdashboard:
+#https://rmarkdown.rstudio.com/flexdashboard/shiny.html#simple_example
+library(flexdashboard)
+library(ggplot2)
+library(dplyr)
+library(DT)#datatable
+library(rmapshaper)
+library(leaflet)
+library(htmltools)
+library(tigris)
+library(totalcensus)
+
+acs <- read.csv("acs_predictions.csv")#read acs data with predictions
+
+#round predictions
+acs$lasso_bin_pred <- round(acs$lasso_bin_pred,2)
+acs$lasso_pred <- round(acs$lasso_pred,2)
+
+#for merging
+acs$GEOID <- as.character(paste0(acs$GEOID, substr(acs$X, 13, 13)))
+
+#this is block groups w/in tracts
+ia_shp <- readRDS("ia_shp.RDS")#block_groups(state = "IA")  #TIME INTENSIVE 1st run (so each dashboard run)
+
+county_list <- readRDS("county_list.RDS")#unique(counties("Iowa")$NAME)#TIME INTENSIVE 1st run (so each dashboard run)
+county_list <- county_list[order(county_list)]
+all_counties <-  readRDS("all_counties.RDS")# block_groups(state = 'IA', county = county_list) #also time intensive...
+
+ia_shp_join <- left_join(ia_shp, acs, by="GEOID" ) %>%
+  rmapshaper::ms_simplify( keep = 0.01, keep_shapes = TRUE)
+
+ia_shp_join$COUNTYNAME <- convert_fips_to_names(ia_shp_join$COUNTYFP, states = rep("IA", nrow(ia_shp_join)), geo_header="COUNTY")
+
+ia_shp_join$labels <- paste0(
+  "<strong> County: </strong> ",
+  ia_shp_join$COUNTYNAME, "<br/> ",
+  "<strong> GEOID: </strong> ",
+  ia_shp_join$GEOID, "<br/> ",
+  "<strong> Food Expenditure: </strong> $",
+  ia_shp_join$lasso_pred, "<br/> ",
+  "<strong> Food Insecurity: </strong> ",
+  ia_shp_join$lasso_bin_pred, "<br/> "
+) %>%
+  lapply(htmltools::HTML)
+
+#for color scale
+limit <- c(min(acs$lasso_pred,na.rm=TRUE), max(acs$lasso_pred,na.rm=TRUE))
+limit_bin <- c(min(acs$lasso_bin_pred,na.rm=TRUE), max(acs$lasso_bin_pred,na.rm=TRUE))
+
+pal_bin <- colorBin(
+  palette = "YlOrRd", domain = ia_shp_join$lasso_bin_pred,
+  bins = seq(0, max(ia_shp_join$lasso_bin_pred, na.rm = TRUE) + .01, by = .05)
+)
+
+pal <- colorBin(
+  palette = "YlOrRd", domain = ia_shp_join$lasso_pred,
+  reverse=TRUE,
+  bins = seq(floor(min(ia_shp_join$lasso_pred, na.rm = TRUE)), floor(max(ia_shp_join$lasso_pred, na.rm = TRUE)) + .1, by = 5)
+)
+
+lasso_coefdf <- readRDS("lasso_coefdf.RDS")
+rownames(lasso_coefdf) <- lasso_coefdf$type
+
+lasso_bin_coefdf <- readRDS("lasso_bin_coefdf.RDS")
+rownames(lasso_bin_coefdf) <- lasso_bin_coefdf$type
+```
+
+Presence of Food Insecurity
+===================================== 
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+
+```{r, echo=FALSE}
+selectInput("county", label = "Select County:", choices = unique(ia_shp_join$COUNTYNAME)[order(unique(ia_shp_join$COUNTYNAME))], selected = "Polk County")
+
+```
+
+
+Row 
+-----------------------------------------------------------------------
+
+### Introduction
+
+The estimates refer to the proportion of food insecure households in each block group. The predictions are made in two stages. First, we use Current Population Survey (CPS) data to estimate the probability that a given household is food insecure in at least one dimension in the past year. The LASSO technique is used to select demographic variables that improve out-of-sample prediction performance and survey sampling weights are used to decrease prediction bias. Second, we apply the first-stage parameter estimates to block-group data from the American Community Survey (ACS) to obtain the predicted proportion of food insecure households in each block group.
+
+
+
+Row 
+-----------------------------------------------------------------------
+
+
+### County-level
+
+```{r, echo=FALSE}
+# renderPlot({ggplot(aes(fill  = lasso_bin_pred, colour=lasso_bin_pred),data = cnty_shp_join()) +
+#   geom_sf()+
+#   scale_fill_viridis_c("Predicted \nProbability",limits = limit_bin)+
+#   scale_colour_viridis_c("Predicted \nProbability",limits = limit_bin)})
+
+
+cnty_shp_join <- reactive({
+  subset(ia_shp_join, COUNTYNAME == input$county) 
+  #block_groups(state = 'IA', county = input$county)
+  })
+renderLeaflet({
+leaflet(cnty_shp_join(),height=500, width=1000) %>%
+  addTiles() %>%
+  #setView(lng = 0, lat = 30, zoom = 2) %>%
+  addPolygons(
+    fillColor = ~ pal_bin(lasso_bin_pred),
+    color = "white",
+        stroke=FALSE,
+    fillOpacity = 0.6,
+    label = ~labels,
+    highlight = highlightOptions(
+      color = "black",
+      bringToFront = TRUE
+    )
+  )%>%
+  leaflet::addLegend(
+    pal = pal_bin, values = ~lasso_bin_pred,
+    opacity = 0.7, title = "Proportion of\nFood Insecure\nHouseholds",
+    position = "topright"
+  )
+})
+
+```
+
+
+Row 
+-----------------------------------------------------------------------
+
+### Predictions
+
+```{r, echo=FALSE}
+temp1 <- ia_shp_join %>% as.data.frame%>%dplyr::select(c("GEOID","COUNTYNAME","lasso_bin_pred", "female", "hispanic",
+                                  "black", "kids", "elderly", "education", "employed",
+                                  "married", "disability"))%>%
+                  rename( 
+                         `Predicted Probability` = lasso_bin_pred)
+
+temp1[,c("female", "hispanic", "black", "kids", "elderly", "education", "employed","married", "disability")] <-t(apply(temp1[,c("female",  "hispanic",
+                                  "black", "kids", "elderly", "education", "employed","married", "disability")], 1, function(x){x*lasso_bin_coefdf[c("female", "hispanic",
+                                  "black", "kids", "elderly", "education", "employed", "married", "disability"),"coef"]
+}))
+renderDataTable({
+rbind(temp1[which(ia_shp_join$COUNTYNAME == input$county),],
+      temp1[which(ia_shp_join$COUNTYNAME != input$county),])
+  
+})
+```
+
+
+Food Expenditure
+===================================== 
+
+Inputs {.sidebar}
+-----------------------------------------------------------------------
+
+
+```{r, echo=FALSE}
+selectInput("county2", label = "Select County:", choices = unique(ia_shp_join$COUNTYNAME)[order(unique(ia_shp_join$COUNTYNAME))], selected = "Polk County")
+
+```
+
+Row 
+-----------------------------------------------------------------------
+
+### Introduction
+
+The estimates refer to weekly average food expenditure per person. The predictions are made in two stages. First, we use Current Population Survey (CPS) data to estimate weekly food expenditure per person at the household level. The LASSO technique is used to select demographic variables that improve out-of-sample prediction performance and survey sampling weights are used to decrease prediction bias. Second, we apply the first-stage parameter estimates to block-group data from the American Community Survey (ACS) to obtain average food expenditure per person in each block group.
+
+
+Row 
+-----------------------------------------------------------------------
+
+### County-level
+```{r,echo=FALSE}
+
+cnty_shp_join2 <- reactive({
+  subset(ia_shp_join, COUNTYNAME == input$county2) 
+  })
+renderLeaflet({
+leaflet(cnty_shp_join2(),height=500, width=1000) %>%
+  addTiles() %>%
+  #setView(lng = 0, lat = 30, zoom = 2) %>%
+  addPolygons(
+    fillColor = ~ pal(lasso_pred),
+    stroke=FALSE,
+    color = "white",
+    fillOpacity = 0.6,
+    label = ~labels,
+    highlight = highlightOptions(
+      color = "black",
+      bringToFront = TRUE
+    )
+  )%>%
+  leaflet::addLegend(
+    pal = pal, values = ~lasso_pred,
+    opacity = 0.7, title = "Weekly Average\nFood Expenditure\nPer Person",
+    position = "topright"
+  )
+})
+
+
+```
+
+
+Row 
+-----------------------------------------------------------------------
+
+### Predictions
+
+```{r, echo=FALSE}
+temp2 <- ia_shp_join %>%as.data.frame%>% dplyr::select(c("GEOID","COUNTYNAME", "lasso_pred","female", "avg_hhsize", "hispanic",
+                                  "black", "kids", "elderly", "education", "employed",
+                                  "married", "disability"))%>%
+                  rename(
+                         `Predicted Expenditure` = lasso_pred)
+
+
+temp2[,c("female", "hispanic", "black", "kids", "elderly", "education", "employed","married", "disability")] <-t(apply(temp2[,c("female",  "hispanic",
+                                  "black", "kids", "elderly", "education", "employed","married", "disability")], 1, function(x){x*lasso_coefdf[c("female", "hispanic",
+                                  "black", "kids", "elderly", "education", "employed", "married", "disability"),"coef"]
+}))
+renderDataTable({
+rbind(temp2[which(ia_shp_join$COUNTYNAME == input$county2),],
+      temp2[which(ia_shp_join$COUNTYNAME != input$county2),])
+  
+})
+```
+
